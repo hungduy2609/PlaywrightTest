@@ -4,8 +4,9 @@ import { dataStorage } from '../core/utils/data-storage';
 import { test } from '../fixtures/conduit';
 
 test.describe('Create new article flow', () => {
-    test('Verify the user can create new article', { tag: '@create' }, async ({ homePage, editorPage, articleDetailPage }) => {
+    test('Verify the user can create new article', { tag: '@create' }, async ({ homePage, editorPage, articleDetailPage, token }) => {
         // Arrange
+        await homePage.navigateToHomePage();
         await homePage.clickNewArticleLink();
         const article = {
             title: DataUtils.generateSentence(),

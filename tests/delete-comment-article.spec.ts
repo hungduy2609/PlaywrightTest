@@ -4,7 +4,8 @@ import { dataStorage } from '../core/utils/data-storage';
 import { test } from '../fixtures/conduit';
 
 test.describe('Delete comment flow', () => {
-    test.beforeEach(async ({ homePage, editorPage, articleDetailPage }) => {
+    test.beforeEach(async ({ homePage, editorPage, articleDetailPage, token }) => {
+        await homePage.navigateToHomePage();
         await homePage.clickNewArticleLink();
         const article = {
             title: DataUtils.generateSentence(),

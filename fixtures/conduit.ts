@@ -29,9 +29,8 @@ export const test = base.extend<{
         const signupPage = new SignupPage(page);
         await use(signupPage);
     },
-    homePage: async ({ page, token }, use) => {
+    homePage: async ({ page }, use) => {
         const homePage = new HomePage(page);
-        await homePage.navigateToHomePage();
         await use(homePage);
     },
     token: async ({ page, authService }, use) => {
