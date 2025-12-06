@@ -11,7 +11,9 @@ jobs:
     test:
         name: Run Playwright Tests
         runs-on: self-hosted # Uses your self-hosted runner
-
+        defaults:
+            run:
+                shell: cmd
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -22,7 +24,7 @@ jobs:
                   node-version: "20" # Adjust to your Node.js version
 
             - name: Install dependencies
-              run: npm install
+              run: npm ci
 
             - name: Install Playwright browsers
               run: npx playwright install --with-deps chromium
