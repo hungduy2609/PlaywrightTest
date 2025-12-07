@@ -5,7 +5,13 @@ on:
         branches: [main, develop, master]
     pull_request:
         branches: [main, develop, master]
-    workflow_dispatch: # Allows manual triggering
+    workflow_dispatch:
+        inputs:
+            tag:
+                description: 'Tag to run tests for'
+                required: false
+                default: ''
+                type: string
 
 jobs:
     test:
@@ -30,7 +36,12 @@ jobs:
               run: npx playwright install --with-deps chromium
 
             - name: Run Playwright tests
-              run: npm test
+              run: |
+                if [ -n "${{ github.event.inputs.tag }}" ]; then
+                  git fetch --tags
+                  git checkout tags/${{ github.event.inputs.tag }}
+                fi
+                npm test
               env:
                   CI: true
                   HEADLESS: true
