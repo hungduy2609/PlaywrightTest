@@ -5,13 +5,7 @@ on:
         branches: [main, develop, master]
     pull_request:
         branches: [main, develop, master]
-    workflow_dispatch:
-        inputs:
-            tag:
-                description: 'Tag to run tests for'
-                required: false
-                default: ''
-                type: string
+    workflow_dispatch: # Allows manual triggering
 
 jobs:
     test:
@@ -36,12 +30,7 @@ jobs:
               run: npx playwright install --with-deps chromium
 
             - name: Run Playwright tests
-              run: |
-                if [ -n "${{ github.event.inputs.tag }}" ]; then
-                  git fetch --tags
-                  git checkout tags/${{ github.event.inputs.tag }}
-                fi
-                npm test
+              run: npm test
               env:
                   CI: true
                   HEADLESS: true
@@ -61,3 +50,43 @@ jobs:
                   name: test-results
                   path: test-results/
                   retention-days: 30
+
+            - name: Notify Slack on Success
+              if: success()
+              uses: slackapi/slack-github-action@v1
+              with:
+                  payload: |
+                      {
+                          "text": "✅ Playwright Tests Passed",
+                          "blocks": [
+                              {
+                                  "type": "section",
+                                  "text": {
+                                      "type": "mrkdwn",
+                                      "text": "*✅ Playwright Tests Passed*\n\n*Repository:* ${{ github.repository }}\n*Branch:* ${{ github.ref_name }}\n*Commit:* <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>\n*Author:* ${{ github.actor }}\n*Workflow:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+                                  }
+                              }
+                          ]
+                      }
+              env:
+                  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+            - name: Notify Slack on Failure
+              if: failure()
+              uses: slackapi/slack-github-action@v1
+              with:
+                  payload: |
+                      {
+                          "text": "❌ Playwright Tests Failed",
+                          "blocks": [
+                              {
+                                  "type": "section",
+                                  "text": {
+                                      "type": "mrkdwn",
+                                      "text": "*❌ Playwright Tests Failed*\n\n*Repository:* ${{ github.repository }}\n*Branch:* ${{ github.ref_name }}\n*Commit:* <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>\n*Author:* ${{ github.actor }}\n*Workflow:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+                                  }
+                              }
+                          ]
+                      }
+              env:
+                  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
